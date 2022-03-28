@@ -17,6 +17,9 @@ import * as Joi from 'joi';
         DATABASE_USER: Joi.string().required(),
         DATABASE_PASSWORD: Joi.string().required(),
       }),
+      validationOptions: {
+        abortEarly: true,
+      },
     }),
   ],
   controllers: [AppController],
