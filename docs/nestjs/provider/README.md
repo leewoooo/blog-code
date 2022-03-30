@@ -1,4 +1,4 @@
-Nest에서 Provider는 무엇일까?
+NestJs에서 Provider는 무엇일까?
 ===
 
 ## Goal
@@ -11,7 +11,9 @@ Nest에서 Provider는 무엇일까?
 
 `Provider`는 `NestJs`의 기본 개념이다. 기본 `NestJs` class의 대부분은 `Service`, `Repository`, `Factory`, `Helper` 등 여러가지 형태로 구현이 가능하다.
 
-`Provider`의 핵심은 종속성으로 `주입(Injection)` 될 수 있다는 것이다.(스프링의 `bean`과 개념이 유사) 즉, 객체는 서로 다양한 관계를 생성할 수 있으며 객체와 객체의 관계를 맺어주는 `역할`을 분리할 수 있다. (**해당 역할을 `NestJs` 런타임 시스템에 위임하게 되는 것**)
+`Provider`의 핵심은 종속성으로 **주입(Injection)** 될 수 있다는 것이다.(스프링의 `bean`과 개념이 유사하다. LifeCycle을 가지며 `NestJs`안에 `IoC`가 관리를 한다.)
+
+즉, 객체는 서로 다양한 관계를 생성할 수 있으며 객체와 객체의 관계를 맺어주는 `역할`을 분리할 수 있다. (**해당 역할을 `NestJs` 런타임 시스템에 위임하게 되는 것**)
 
 <img src = https://docs.nestjs.com/assets/Components_1.png>
 
@@ -64,6 +66,11 @@ export class AppModule {}
 
 `AppService` class를 살펴보면 데코레이터로 `@Injectable()`이 붙어있는 것을 볼 수 있다.
 
+```ts
+@Injectable()
+export class AppService { ... }
+```
+
 공식문서에 따르면 `Injectable()` 데코레이터를 사용하게 되면 `NestJs IoC`에 의해 관리되는 것이라고 명시해주는 것이라 한다.
 
 `@Injectable`이라는 데코레이터가 붙어 있어야 **현재 `Module`가 아닌 다른 `Module`에서도 `DI`를 받을 수 있게 된다.** (같은 `Module`에서는 `@Injectable`이 없어도 가능하다.)
@@ -89,11 +96,12 @@ export class AppController {
 
 ### 다른 `Module`의 Provider를 `DI`받으려면?
 
-여기서 중요한 점은 다른 `Module`에서 Provider를 주입을 받으려면 **Provider**를 정의한 `Module`에서 `exports`해줘야 한다. 만약 `exports`를 하지 않는 다면 다음과 같은 error를 볼 수 있을 것이다.
+여기서 중요한 점은 다른 `Module`에서 Provider를 주입을 받으려면 **Provider**를 정의한 `Module`에서 `exports`해줘야 한다. 만약 `exports`를 하지 않는다면 다음과 같은 error를 볼 수 있을 것이다.
 
 ```zsh
 //error
-Error: Nest can not resolve dependencies of the [생성자에서 DI를 받으려는 class명] (?). Please make sure that the argument [Provider 명] at index [0] is available in the [현재 Moduel명] context.
+Error: Nest can not resolve dependencies of the [생성자에서 DI를 받으려는 class명] (?). \ 
+Please make sure that the argument [Provider 명] at index [0] is available in the [현재 Moduel명] context.
 
 //solution
 Potential solutions:
@@ -120,4 +128,33 @@ Potential solutions:
 
 ### Optional Provider 주입받기.
 
+`DI`를 받으려는 `Provider`가 없으면 [다른 `Module`의 Provider를 `DI`받으려면?](#다른-module의-provider를-di받으려면)에서 봤던 것 처럼 `error`를 만날 수 있다.
 
+하지만 반드시 `DI`를 받아야 하지 않는 `Provider`가 있을 수도 있다. 예를 들어 **의존할 수 있지만 전달되지 않은 경우 기본값을 사용해야 할 때가 있다.** 이러한 경우 `@Optional()`데코레이터를 이용하면 `DI`를 받으려는 `Provider`가 없더라도 위와 같은 `error`가 발생하지 않는다.
+
+```ts
+@Controller('cat')
+export class CatController {
+  constructor(@Optional() private readonly dogService: DogService){}
+
+  @Get()
+  printDog(){
+    // 만약 DogService라는 Provider를 주입받았으면 `printDog()`를 실행한다.
+    // DogService가 @Optional()이고 주입이 되지 않은 상태로 접근을 하면 error가 발생한다.
+    // ERROR [ExceptionsHandler] Cannot read properties of undefined (reading 'printDog') TypeError: Cannot read properties of undefined (reading 'printDog')
+    this.dogService.printDog();
+  }
+}
+```
+
+<br>
+
+## 다음으로
+
+다음으로는 `CustomProvider`를 어떻게 정의하는지와 `NestJs`에서는 `Interface`타입으로는 `Provider`를 정의할 수 없는데 **그럼 어떻게 `DIP`를 지킬 수 있을까?**에 대하여 알아보고자 한다.
+
+<br>
+
+## Reference
+
+- https://docs.nestjs.com/providers#optional-providers
