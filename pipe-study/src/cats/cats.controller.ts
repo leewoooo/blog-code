@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Post, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ClassValidation } from './class-validation.pipe';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { ParseIntPipe } from './parse-int.pipe';
 
 @Controller('cats')
+// @UsePipes(ValidationPipe)
 export class CatsController {
 
   @Post()
