@@ -167,5 +167,30 @@ export interface ExceptionFilter<T = any> {
 }
 ```
 
+`ArgumentsHost` 인터페이스는 아래와 같은 method들을 가지고 있다.
+
+```ts
+export interface HttpArgumentsHost {
+    /**
+     * Returns the in-flight `request` object.
+     */
+    getRequest<T = any>(): T;
+    /**
+     * Returns the in-flight `response` object.
+     */
+    getResponse<T = any>(): T;
+    getNext<T = any>(): T;
+}
+
+export interface ArgumentsHost {
+    getArgs<T extends Array<any> = any[]>(): T;
+    getArgByIndex<T = any>(index: number): T;
+    switchToRpc(): RpcArgumentsHost;
+    switchToHttp(): HttpArgumentsHost;
+    switchToWs(): WsArgumentsHost;
+    getType<TContext extends string = ContextType>(): TContext;
+}
+```
+
 
 
