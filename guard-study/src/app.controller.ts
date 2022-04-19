@@ -1,6 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { RoleGuard } from './role.guard';
-import { AppGuard } from './app.guard';
+import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Roles } from './roles.decorator';
 
@@ -12,8 +10,9 @@ export class AppController {
   constructor(private readonly appService: AppService) { }
 
   @Get()
-  @Roles('admin')
+  // @SetMetadata('role', 'admin')
   // @UseGuards(RoleGuard)
+  @Roles('admin')
   getHello(): string {
     return this.appService.getHello();
   }
