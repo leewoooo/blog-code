@@ -2,7 +2,7 @@ import { Controller, Get, Req, UseGuards, ValidationPipe } from '@nestjs/common'
 import { AppGuard } from './app.guard';
 import { AppService } from './app.service';
 import { User, UserModel } from './model/user.model';
-import { AppWithInterfaceGuard } from './app-with-interface';
+import { AppWithInterfaceGuard } from './app-with-interface.guard';
 import { UserData } from './user-data.decorator';
 import { UserWithInterface } from './user-with-interface.decorator';
 
