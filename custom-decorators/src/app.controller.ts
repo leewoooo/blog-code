@@ -1,8 +1,10 @@
-import { Controller, Get, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards, ValidationPipe } from '@nestjs/common';
 import { AppGuard } from './app.guard';
 import { AppService } from './app.service';
-import { UserModel } from './model/user.model';
-import { User } from './user.decorator';
+import { User, UserModel } from './model/user.model';
+import { AppWithInterfaceGuard } from './app-with-interface';
+import { UserData } from './user-data.decorator';
+import { UserWithInterface } from './user-with-interface.decorator';
 
 @Controller()
 export class AppController {
@@ -10,9 +12,14 @@ export class AppController {
 
   @Get()
   @UseGuards(AppGuard)
-  getHello(@User(new ValidationPipe({ validateCustomDecorators: true })) user: UserModel): string {
-    // getHello(@User() user: User): string {
+  getHello(@UserData() user: UserModel) {
     console.log(user);
     return this.appService.getHello();
+  }
+
+  @Get('/interface')
+  @UseGuards(AppWithInterfaceGuard)
+  withInterface(@UserWithInterface() user: User) {
+    console.log(user);
   }
 }

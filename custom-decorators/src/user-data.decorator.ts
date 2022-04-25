@@ -4,7 +4,7 @@ import { UserModel } from './model/user.model';
 // createParamDecorator
 // 데코레이터를 사용하는 곳에서 데이터를 넘겨준 것을 사용할 수 있다. createParamDecorator 뒤에 데코레이터를 이용하여
 // 타입을 지정할 수 있다.
-export const User = createParamDecorator<string>(
+export const UserData = createParamDecorator<string>(
   (data: string, ctx: ExecutionContext): UserModel => {
     const request = ctx.switchToHttp().getRequest();
     const user = request.user;
