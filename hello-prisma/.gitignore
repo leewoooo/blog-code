@@ -5,6 +5,10 @@
 # env
 .env
 
+# sqllite
+dev.db
+dev.db-journal
+
 # Logs
 logs
 *.log
