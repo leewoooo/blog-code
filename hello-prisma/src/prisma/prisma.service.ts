@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor() {
     super({
+      // excute되는 query 및 error가 stdout으로 출력됨.
       log: [
         {
           emit: 'stdout', level: 'query'
