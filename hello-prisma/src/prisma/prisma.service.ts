@@ -13,13 +13,24 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         {
           emit: 'stdout', level: 'error'
         }
-      ]
+      ],
+      errorFormat: 'pretty'
     });
+
+    // https://www.prisma.io/docs/concepts/components/prisma-client/middleware/logging-middleware
+    this.$use(async (params, next) => {
+      const before = Date.now()
+      const result = await next(params)
+      const after = Date.now()
+      console.log(`Query ${params.model}.${params.action} took ${after - before}ms`)
+      return result
+    })
   }
 
   async onModuleDestroy() {
     await this.$connect();
   }
+
   async onModuleInit() {
     await this.$disconnect()
   }
