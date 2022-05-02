@@ -10,7 +10,7 @@ export class UsersRepository {
     return this.prismaService.user.findMany();
   }
 
-  async findById(validator: Prisma.UserFindUniqueArgs): Promise<User> {
+  async findById(validator: Prisma.UserFindUniqueArgs): Promise<User | null> {
     return this.prismaService.user.findUnique(validator)
   }
 

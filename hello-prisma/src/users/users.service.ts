@@ -1,5 +1,5 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { Prisma, User } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { CreateUsersRequest } from './dto/create-users.dto';
 import { UpdateUsersRequest } from './dto/update-users.dto';
 import { UsersRepository } from './users.repository';
@@ -21,7 +21,7 @@ export class UsersService {
     return this.usersRepository.findAll();
   };
 
-  async getUserById(id: number): Promise<User> {
+  async getUserById(id: number): Promise<User | null> {
     return this.usersRepository
       .findById(this.usersValidator.getUsersByIdValidator(id));
   };

@@ -16,7 +16,7 @@ export class UsersController {
   @Get('/:id')
   async getUserById(
     @Param('id', ParseIntPipe) id: number
-  ): Promise<User> {
+  ): Promise<User | null> {
     return this.usersService.getUserById(id);
   }
 
