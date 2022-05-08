@@ -1,10 +1,19 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { Users } from './users/domain/users.entity';
+import { UsersModules } from './users/users.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'database.db',
+      // synchronize: true,
+      entities: [Users],
+      namingStrategy: new SnakeNamingStrategy(),
+    }),
+    UsersModules,
+  ],
 })
 export class AppModule {}

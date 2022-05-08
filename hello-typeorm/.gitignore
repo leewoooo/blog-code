@@ -2,6 +2,9 @@
 /dist
 /node_modules
 
+# sqllite
+database.db
+
 # Logs
 logs
 *.log
