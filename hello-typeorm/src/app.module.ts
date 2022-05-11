@@ -7,9 +7,12 @@ import { UsersModules } from './users/users.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'database.db',
-      // synchronize: true,
+      type: 'postgres',
+      host: 'localhost',
+      username: 'root',
+      password: 'passowrd',
+      database: 'blog',
+      synchronize: true,
       entities: [Users],
       namingStrategy: new SnakeNamingStrategy(),
     }),
