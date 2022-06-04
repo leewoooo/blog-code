@@ -8,17 +8,16 @@ on:
     branches-ignore:
       - "release"
 
-defaults:
-  run:
-    working-directory: /home/runner/work/blog-code/hello-typeorm
-
 jobs:
   nest_CI:
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./hello-typeorm
 
     steps:
       - name: Check current Dir
         run: pwd
+        working-directory: ./hello-typeorm
 
       - name: Checkout source code
         uses: actions/checkout@v3
@@ -31,6 +30,8 @@ jobs:
 
       - name: Install dependencies
         run: yarn install
+        working-directory: ./hello-typeorm
 
       - name: Test unit
         run: yarn test:unit
+        working-directory: ./hello-typeorm
