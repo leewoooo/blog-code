@@ -26,16 +26,17 @@ jobs:
         run: ls -al
         working-directory: ./hello-typeorm
 
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 16.x
-      #     cache: "yarn"
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: "yarn"
+        working-directory: ./hello-typeorm
 
-      # - name: Install dependencies
-      #   run: yarn install
-      #   working-directory: ./hello-typeorm
+      - name: Install dependencies
+        run: yarn install
+        working-directory: ./hello-typeorm
 
-      # - name: Test unit
-      #   run: yarn test:unit
-      #   working-directory: ./hello-typeorm
+      - name: Test unit
+        run: yarn test:unit
+        working-directory: ./hello-typeorm
