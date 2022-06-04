@@ -8,11 +8,13 @@ on:
     branches-ignore:
       - "release"
 
+defaults:
+  run:
+    working-directory: ./hello-typeorm
+
 jobs:
   nest_CI:
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./hello-typeorm
 
     steps:
       - name: Checkout source code
@@ -22,19 +24,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-
-      - name: Check current Dir
-        run: pwd
-        working-directory: ./hello-typeorm
-
-      - name: Check dir
-        run: ls -al
-        working-directory: ./hello-typeorm
+          cache: "yarn"
 
       - name: Install dependencies
         run: yarn install
-        working-directory: ./hello-typeorm
 
       - name: Test unit
         run: yarn test
-        working-directory: ./hello-typeorm
