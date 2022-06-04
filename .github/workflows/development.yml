@@ -18,19 +18,17 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
       - name: Check current Dir
         run: pwd
         working-directory: ./hello-typeorm
 
       - name: Check dir
         run: ls -al
-        working-directory: ./hello-typeorm
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          cache: "yarn"
         working-directory: ./hello-typeorm
 
       - name: Install dependencies
