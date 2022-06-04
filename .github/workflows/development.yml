@@ -10,7 +10,7 @@ on:
 
 defaults:
   run:
-    working-directory: hello-typeorm
+    working-directory: /home/runner/work/blog-code/hello-typeorm
 
 jobs:
   nest_CI:
