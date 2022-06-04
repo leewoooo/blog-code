@@ -36,5 +36,5 @@ jobs:
         working-directory: ./hello-typeorm
 
       - name: Test unit
-        run: yarn test:unit
+        run: yarn test
         working-directory: ./hello-typeorm
