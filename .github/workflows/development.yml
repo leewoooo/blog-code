@@ -1,0 +1,33 @@
+name: development CI
+
+on:
+  push:
+    branches-ignore:
+      - "release"
+  pull_request:
+    branches-ignore:
+      - "release"
+
+defaults:
+  run:
+    working-directory: ./hello-typeorm
+
+jobs:
+  nest_CI:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Test unit
+        run: yarn test:unit
