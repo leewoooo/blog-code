@@ -15,12 +15,12 @@ jobs:
       working-directory: ./hello-typeorm
 
     steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
       - name: Check current Dir
         run: pwd
         working-directory: ./hello-typeorm
-
-      - name: Checkout source code
-        uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
