@@ -10,13 +10,16 @@ on:
 
 defaults:
   run:
-    working-directory: ./hello-typeorm
+    working-directory: ../hello-typeorm
 
 jobs:
   nest_CI:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check current Dir
+        run: pwd
+
       - name: Checkout source code
         uses: actions/checkout@v3
 
