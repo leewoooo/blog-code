@@ -35,3 +35,6 @@ jobs:
 
       - name: Test unit
         run: yarn test
+
+      - name: build
+        run: yarn build
