@@ -1,8 +1,8 @@
 import { InternalServerErrorException } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { IBackup, newDb } from 'pg-mem';
-import { Connection, Repository } from 'typeorm';
+import { Connection, QueryRunner, Repository } from 'typeorm';
 import { Users } from './domain/users.entity';
 import { UsersService } from './users.service';
 
@@ -231,5 +231,99 @@ describe('Users Serviec Transaction Test with TestModule', () => {
     await expect(
       userService.saveWithQueryRunnerWithError(newUsers),
     ).rejects.toThrowError(new InternalServerErrorException());
+  });
+});
+
+describe('Transaction Unit Test', () => {
+  let usersService: UsersService;
+  let connection: Connection;
+
+  const qr = {
+    manager: {},
+  } as QueryRunner;
+
+  class ConnectionMock {
+    createQueryRunner(mode?: 'master' | 'slave'): QueryRunner {
+      return qr;
+    }
+  }
+
+  beforeEach(async () => {
+    Object.assign(qr.manager, { save: jest.fn() });
+
+    qr.connect = jest.fn();
+    qr.release = jest.fn();
+    qr.startTransaction = jest.fn();
+    qr.commitTransaction = jest.fn();
+    qr.rollbackTransaction = jest.fn();
+    qr.release = jest.fn();
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UsersService,
+        {
+          provide: Connection,
+          useClass: ConnectionMock,
+        },
+        {
+          provide: getRepositoryToken(Users),
+          useValue: new Repository(),
+        },
+      ],
+    }).compile();
+
+    usersService = module.get<UsersService>(UsersService);
+    connection = module.get<Connection>(Connection);
+  });
+
+  it('should be defined', () => {
+    expect(usersService).toBeDefined();
+  });
+
+  it('정상적으로 저장되는 경우', async () => {
+    //given
+    const now: Date = new Date();
+    const willSavedUser: Users = {
+      id: 1,
+      name: 'foobar',
+      createdAt: now,
+      lastModifiedAt: now,
+    };
+    const queryRunner = connection.createQueryRunner();
+
+    jest
+      .spyOn(queryRunner.manager, 'save')
+      .mockResolvedValueOnce(willSavedUser);
+
+    //when
+    const result = await usersService.saveWithQueryRunner(new Users());
+
+    //then
+    expect(result).toStrictEqual(willSavedUser);
+    expect(queryRunner.manager.save).toHaveBeenCalledTimes(1);
+    expect(queryRunner.commitTransaction).toHaveBeenCalledTimes(1);
+    expect(queryRunner.release).toHaveBeenCalledTimes(1);
+  });
+
+  it('save 도중 Error가 발생하는 경우', async () => {
+    //given
+    const now: Date = new Date();
+    const willSavedUser: Users = {
+      id: 1,
+      name: 'foobar',
+      createdAt: now,
+      lastModifiedAt: now,
+    };
+    const queryRunner = connection.createQueryRunner();
+
+    jest
+      .spyOn(queryRunner.manager, 'save')
+      .mockRejectedValueOnce(new Error('DataBase Error 발생'));
+
+    const result = await usersService.saveWithQueryRunner(new Users());
+
+    expect(result).toBeUndefined();
+    expect(queryRunner.rollbackTransaction).toHaveBeenCalledTimes(1);
+    expect(queryRunner.release).toHaveBeenCalledTimes(1);
   });
 });
