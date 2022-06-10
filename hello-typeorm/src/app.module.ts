@@ -9,9 +9,10 @@ import { UsersModules } from './users/users.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
+      port: 5432,
       username: 'root',
-      password: 'passowrd',
-      database: 'blog',
+      password: 'password',
+      database: 'test',
       synchronize: true,
       entities: [Users],
       namingStrategy: new SnakeNamingStrategy(),

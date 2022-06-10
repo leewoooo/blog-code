@@ -1,6 +1,7 @@
+import { InternalServerErrorException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { newDb, IMemoryDb, IBackup } from 'pg-mem';
+import { IBackup, newDb } from 'pg-mem';
 import { Connection, Repository } from 'typeorm';
 import { Users } from './domain/users.entity';
 import { UsersService } from './users.service';
@@ -132,5 +133,103 @@ describe('Users Serviec Test with TestModule', () => {
     expect(result.name).toBe('foobar');
     expect(result.createdAt).not.toBeUndefined();
     expect(result.lastModifiedAt).not.toBeUndefined();
+  });
+});
+
+describe('Users Serviec Transaction Test with TestModule', () => {
+  let backup: IBackup;
+  let connection: Connection;
+  let userService: UsersService;
+  let repository: Repository<Users>;
+
+  beforeAll(async () => {
+    // setting memory database
+    const db = newDb();
+    db.public.registerFunction({
+      name: 'current_database',
+      implementation: () => 'test',
+    });
+
+    connection = await db.adapters.createTypeormConnection({
+      type: 'postgres',
+      entities: [Users],
+      logging: true,
+    });
+    await connection.synchronize();
+
+    //https://github.com/oguimbal/pg-mem/blob/master/readme.md#rollback-to-a-previous-state
+    backup = db.backup();
+  });
+
+  afterAll(async () => {
+    await connection.close();
+  });
+
+  beforeEach(async () => {
+    const moduelRef = await Test.createTestingModule({
+      imports: [TypeOrmModule.forRoot(), TypeOrmModule.forFeature([Users])],
+      providers: [UsersService],
+    })
+      .overrideProvider(Connection)
+      .useValue(connection)
+      .compile();
+
+    repository = connection.getRepository(Users);
+    userService = moduelRef.get<UsersService>(UsersService);
+  });
+
+  afterEach(async () => {
+    backup.restore();
+  });
+
+  it('pg-mem 트랜잭션 테스트', async () => {
+    //given
+    const queryRunner = connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    const newUsers = new Users();
+    newUsers.name = 'foobar';
+    try {
+      await queryRunner.manager.save(newUsers);
+      throw new InternalServerErrorException();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+
+    //when
+    const queryRunner2 = connection.createQueryRunner();
+    await queryRunner.connect();
+    const result = await queryRunner2.manager.find(Users);
+
+    //then
+    expect(result.length).toBe(1);
+    expect(result[0].name).toBe('foobar');
+  });
+
+  it('User 저장 with transaction', async () => {
+    //given
+    const newUsers = new Users();
+    newUsers.name = 'foobar';
+
+    //when
+    const result = await userService.saveWithQueryRunner(newUsers);
+
+    // then
+    expect(result.name).toBe('foobar');
+  });
+
+  it('User 저장 with transaction Error', async () => {
+    //given
+    const newUsers = new Users();
+    newUsers.name = 'foobar';
+
+    //when
+    //then
+    await expect(
+      userService.saveWithQueryRunnerWithError(newUsers),
+    ).rejects.toThrowError(new InternalServerErrorException());
   });
 });
