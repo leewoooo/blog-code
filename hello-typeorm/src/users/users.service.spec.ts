@@ -267,7 +267,7 @@ describe('Transaction Unit Test', () => {
         },
         {
           provide: getRepositoryToken(Users),
-          useValue: new Repository(),
+          useClass: Repository,
         },
       ],
     }).compile();

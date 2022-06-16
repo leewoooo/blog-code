@@ -16,6 +16,7 @@ import { UsersModules } from './users/users.module';
       synchronize: true,
       entities: [Users],
       namingStrategy: new SnakeNamingStrategy(),
+      logging: 'all',
     }),
     UsersModules,
   ],
