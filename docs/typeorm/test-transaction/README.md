@@ -1,5 +1,7 @@
 # TypeORM Transaction을 Test하기
 
+예제코드는 [Github](https://github.com/leewoooo/blog-code/tree/main/hello-typeorm/src)에 있습니다:)
+
 ## Goal
 
 - TypeORM의 queryRunner를 이용하여 Transaction을 이용하였을 때 `jest`를 이용하여 Test 해보기
@@ -9,6 +11,8 @@
 ## Version
 
 현 시점에서 최신의 `@nestjs/typeorm`에서는 `TypeORM`의 버전을 `0.3.x`를 이용하고 있으나 해당 글에서는 `^0.2.45`를 기준으로 작성할 것이다. (차이점은 `Connection`을 이용하는 것과 `DataSource`를 이용하는 것이다.)
+
+<br>
 
 ## Why
 
@@ -61,7 +65,7 @@ qr.release = jest.fn();
 
 ### EntityManager method Mocking하기
 
-`QueryRunner`안에 있는 `manager(EntityManager)`안에 기본적으로 사용하는 CRUD method가 존재한다.
+`QueryRunner`에 있는 `manager(EntityManager)`는 기본적으로 사용하는 CRUD method가 존재한다.
 
 Test하고자 하는 코드에서 사용하는 method를 `Object.assign`을 통하여 `manager(EntityManager)`에 넣어준다. ([Object.assign](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Object/assign))
 
@@ -178,9 +182,9 @@ async saveWithQueryRunner(user: Users): Promise<Users> {
 
 위의 코드를 검증하는 실패case와 성공case TestCode는 아래와 같다. (트랜잭션 테스트를 하는 것을 주제로 하고 있기에 `jest`에 대해서는 설명하지 않겠다.)
 
-테스트 코드에서 중요하게 볼 것은 `const queryRunner = connection.createQueryRunner();`로 이전 테스트를 하기 위한 사전작업에서 정의한 `QueryRunner`를 가져오는 것,
+<br>
 
-`manager`를 이용하여 CRUD method를 Mocking하는 것이다.
+테스트 코드에서 중요하게 볼 것은 `const queryRunner = connection.createQueryRunner();`로 이전 테스트를 하기 위한 사전작업에서 정의한 `QueryRunner`를 가져오는 것, `manager`를 이용하여 CRUD method를 Mocking하는 것이다.
 
 ```ts
 it("정상적으로 저장되는 경우", async () => {
