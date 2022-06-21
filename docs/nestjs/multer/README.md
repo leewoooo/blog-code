@@ -1,5 +1,7 @@
 # NestJs에서 File Upload하기
 
+예제코드는 [Github](https://github.com/leewoooo/blog-code/blob/main/file-upload-study/src/app.controller.ts)에 있습니다 :)
+
 ## Goal
 
 - multer를 사용해보자
@@ -56,7 +58,9 @@ uploadFile(@UploadedFile() file: Express.Multer.File) {
 
 단일파일과 크게 다르지 않지만 사용하는 `Interceptor`와 `ParameterDecorator`만 변경된다. 기존에는 단수형를 사용하였다면 **이제는 복수형을 사용하면 된다.**
 
-`FilesInterceptor`를 이용할 때 두번 째 파라미터로 **업로드가 가능한 파일의 갯수를 제한할 수 있다.** 다른 옵션으로는 `FileFieldsInterceptor`를 사용할 수 있는데 `multipart/form-data`로 들어오는 `name`마다 `maxCount`를 부여할 수 있다.
+`FilesInterceptor`를 이용할 때 두번 째 파라미터로 **업로드가 가능한 파일의 갯수를 제한할 수 있다.**
+
+또 다른 옵션으로는 `FileFieldsInterceptor`를 사용할 수 있는데 `multipart/form-data`로 들어오는 `name`마다 `maxCount`를 부여할 수 있다.
 
 마지막으로 `AnyFilesInterceptor`를 사용할 수 있는데 요청으로 들어오는 모든 `name`에 해당하는 파일을 받을 수 있게 된다.
 
@@ -98,11 +102,11 @@ uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>) { // UploadedFil
 
 ## 옵션
 
-위에서 설명한 것과 같이 `FileInterceptor`의 두번째 파라미터로 옵션을 부여할 수 있다. (`FilesInterceptor`는 3번째 파라미터)
+위에서 설명한 것과 같이 `FileInterceptor`의 두번째 파라미터로 옵션을 부여할 수 있다. `FilesInterceptor`는 3번째 파라미터에 옵션이 들어간다.
 
-[Multer Option](https://github.com/expressjs/multer#multeropts)를 참조하면 자세히 볼 수 있다.
+사용되는 옵션은 [Multer Option](https://github.com/expressjs/multer#multeropts)를 참조하면 자세히 볼 수 있다. 해당 document를 기준으로 글을 작성해 나갈 것이다.
 
-그 중 가장 기본 옵션인 `dest`요소는 `Multer`에게 파일을 어디로 업로드 할 지를 알려준다. 만일 Option을 생락하면 파일은 디스크가 아니라 **메모리에 저장된다.** 기본적으로 `Multer`는 **이름의 중복을 방지하기 위해 내부적으로 임의로 이름을 생성하며 확장자는 붙어있지 않게 된다.**
+만일 Option을 생락하면 파일은 디스크가 아니라 **메모리에 저장되며** 기본적으로 `Multer`는 **이름의 중복을 방지하기 위해 내부적으로 임의로 이름을 생성하며 확장자는 붙어있지 않게 된다.**
 
 `Multer Option`은 아래와 같은 프로퍼티를 갖는다.
 
@@ -124,9 +128,9 @@ export interface MulterOptions {
 
 ### dest
 
-`dest`를 지정하게 되면 지정된 위치에 업로드 된 파일이 저장이 되게 된다. 이 때 지정한 path에 디렉토리가 존재하지 않는다면 **자동적으로 생성이 된다.**
+가장 기본적인 옵션인 `dest`는 `Multer`에게 파일을 어디로 업로드 할 지를 알려준다.
 
-또한 확장자가 없는 상태에서 `Multer` 내부에서 임의로 생성한 이름으로 저장이 되게 된다. 위에서 이야기 했던 것처럼 **임의로 생성된 파일명에는 확장자가 붙어있지 않다.**
+`dest`를 지정하게 되면 지정된 위치에 업로드 된 파일이 저장이 되게 된다. 이 때 지정한 path에 디렉토리가 존재하지 않는다면 **자동적으로 생성이 된며 확장자가 없는 상태에서 `Multer` 내부에서 임의로 생성한 이름으로 저장이 되게 된다.**
 
 <br>
 
@@ -134,9 +138,9 @@ export interface MulterOptions {
 
 `dest`보다 조금 더 세밀하게 `upload`를 제어하고 싶을 때 사용할 수 있는 옵션이다. `storage`는 2가지가 존재한다. (현재 글은 disk storage를 기준으로 작성.)
 
-- disk storage
+- DiskStorage
 
-- memory storage
+- MemoryStorage
 
 ### disk storage
 
@@ -269,7 +273,9 @@ imports: [{
 
 ### Interceptor에 부여하기
 
-[Upload하기](#upload하기)에서 Interceoptor의 파라미터로 `MulterOption`을 부여할 수 있다고 하였다. `MulterOptions`에 맞는 형식의 `Object`를 만들어 넣어주어도 되며 혹은 `MulterOptions`을 return 하는 함수를 실행시켜주어도 된다.
+[Upload하기](#upload하기)에서 Interceoptor의 파라미터로 `MulterOption`을 부여할 수 있다고 하였다.
+
+`MulterOptions`에 맞는 형식의 `Object`를 만들어 넣어주어도 되며 혹은 `MulterOptions`을 return 하는 함수를 실행시켜주어도 된다.
 
 ```ts
 const options: MulterOptions = {...}
