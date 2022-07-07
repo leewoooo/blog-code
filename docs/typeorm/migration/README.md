@@ -53,9 +53,11 @@ export const typeOrmModuleOptions: TypeOrmModuleOptions = {
 export const OrmConfig = {
   ...typeOrmModuleOptions,
   migrationsTableName: "migrations",
-  migrations: ["migrations/*.ts"],
+  migrations: ["dist/migrations/*.js"],
+  //TODO: migrationsRun 설명 추가
+  migrationsRun: true,
   cli: {
-    migrationsDir: "migrations",
+    migrationsDir: "src/migrations",
   },
 };
 export default OrmConfig;
