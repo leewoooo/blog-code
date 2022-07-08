@@ -54,7 +54,6 @@ export const OrmConfig = {
   ...typeOrmModuleOptions,
   migrationsTableName: "migrations",
   migrations: ["dist/migrations/*.js"],
-  //TODO: migrationsRun 설명 추가
   migrationsRun: true,
   cli: {
     migrationsDir: "src/migrations",
@@ -63,7 +62,7 @@ export const OrmConfig = {
 export default OrmConfig;
 ```
 
-위에서 보면 `typeOrmModuleOptions`와 `typeOrmModuleOptions`를 이용한 `OrmConfig`를 정의하였다. `OrmConfig`를 `default export`로 내보낸 이유는 이 후에도 설명을 하겠지만 Migration 옵션 중 `-c`(커넥션) 옵션을 부여하게 되는데 **`named export`를 이용하여 내보내게 되면 `TypeORM` 라이브러리에서 어떠한 것을 사용해야 할 지 몰라 `cli`의 옵션이 적용되지 않는다.**
+위에서 보면 `typeOrmModuleOptions`와 `typeOrmModuleOptions`를 이용한 `OrmConfig`를 정의하였다. `OrmConfig`를 `default export`로 내보낸 이유는 이 후에도 설명을 하겠지만 Migration 옵션 중 `-c`(커넥션) 옵션을 부여하게 되는데 **`named export`를 이용하여 내보내게 되면 `TypeORM` 라이브러리에서 어떠한 것을 사용해야 할 지 몰라 `cli`의 옵션이 적용되지 않는다.** (분리하지 않고 하나로 작성해도 상관없다.)
 
 그렇기 때문에 하나의 파일에서 한번만 사용할 수 있는 `export default`를 이용하여 `OrmConfig`를 내보내 준다.
 
@@ -150,6 +149,16 @@ export class addTextColumn1657093035722 implements MigrationInterface {
   | id  | timestamp     | name                       |
   | :-- | :------------ | :------------------------- |
   | 1   | 1657093035722 | addTextColumn1657093035722 |
+
+<br>
+
+## 추가내용 : `migrationsRun: true`
+
+배포를 할 때 마이그레이션을 진행하고 서버를 배포하거나 배포를 하고 마이그레이션을 진행하거나에 대한 고민을 해야한다. 그럴 때 사용할 수 있는 옵션이 `migrationsRun: boolean`이다.
+
+마이그레이션 설정을 할 때 `migrationsRun: boolean` 옵션 `true`로 하게 되면 **서버가 부트스트래핑 될 때 자동으로 마이그레이션을 진행하면서 서버가 구동된다.** 만약 마이그레이션에 실패하면 서버는 부트스트래핑 되지 않으며 **error를 뱉으며 계속해서 연결을 시도하다 종료된다.**
+
+해당 옵션을 사용할 때 **마이그레이션 파일에 오류가 없는지 많은 검증 후 사용해야한다.**
 
 <br>
 
