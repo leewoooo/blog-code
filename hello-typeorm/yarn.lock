@@ -987,6 +987,13 @@
     "@types/mime" "^1"
     "@types/node" "*"
 
+"@types/sqlite3@^3.1.8":
+  version "3.1.8"
+  resolved "https://registry.yarnpkg.com/@types/sqlite3/-/sqlite3-3.1.8.tgz#e64310c5841fc01c1a8795d960d951e4cf940296"
+  integrity sha512-sQMt/qnyUWnqiTcJXm5ZfNPIBeJ/DVvJDwxw+0tAxPJvadzfiP1QhryO1JOR6t1yfb8NpzQb/Rud06mob5laIA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/stack-utils@^2.0.0":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.1.tgz#20f18294f797f2209b5f65c8e3b5c8e8261d127c"
@@ -5872,10 +5879,10 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
-sqlite3@^5.0.8:
-  version "5.0.8"
-  resolved "https://registry.yarnpkg.com/sqlite3/-/sqlite3-5.0.8.tgz#b4b7eab7156debec80866ef492e01165b4688272"
-  integrity sha512-f2ACsbSyb2D1qFFcqIXPfFscLtPVOWJr5GmUzYxf4W+0qelu5MWrR+FAQE1d5IUArEltBrzSDxDORG8P/IkqyQ==
+sqlite3@^5.0.10:
+  version "5.0.10"
+  resolved "https://registry.yarnpkg.com/sqlite3/-/sqlite3-5.0.10.tgz#64e1efb1b5a1ae343d2cc64ce9e582e5f5db24ba"
+  integrity sha512-xG4XPp7+b/lIlb/acs4XzBmmahI1Qq3Yhy+jZnZJivwB6DXpoOpGR6QinRbsQkHJIvMZyUsJDXouSva/JXcWFA==
   dependencies:
     "@mapbox/node-pre-gyp" "^1.0.0"
     node-addon-api "^4.2.0"
