@@ -1,6 +1,6 @@
 # TypeORM을 sqlite로 Test하기
 
-예제코드는 Github[https://github.com/leewoooo/blog-code/tree/main/hello-typeorm/src/users/domain]에 있습니다 :)
+예제코드는 [Github](https://github.com/leewoooo/blog-code/tree/main/hello-typeorm/src/users/domain)에 있습니다 :)
 
 ## Goal
 
