@@ -14,9 +14,9 @@ export class Users {
   @Column()
   name: string;
 
-  @CreateDateColumn({ nullable: false })
+  @CreateDateColumn({ type: 'timestamptz', nullable: false })
   createdAt: Date;
 
-  @UpdateDateColumn({ nullable: false })
+  @UpdateDateColumn({ type: 'timestamptz', nullable: false })
   lastModifiedAt: Date;
 }
