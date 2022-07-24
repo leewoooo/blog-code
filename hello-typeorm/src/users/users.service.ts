@@ -1,12 +1,12 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Connection, Repository } from 'typeorm';
+import { Connection, DataSource, Repository } from 'typeorm';
 import { Users } from './domain/users.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly connection: Connection,
+    private readonly dataSource: DataSource,
     @InjectRepository(Users) private readonly repository: Repository<Users>,
   ) {}
 
@@ -15,7 +15,7 @@ export class UsersService {
   }
 
   async saveWithQueryRunner(user: Users): Promise<Users> {
-    const queryRunner = this.connection.createQueryRunner();
+    const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
@@ -32,7 +32,7 @@ export class UsersService {
   }
 
   async saveWithQueryRunnerWithError(user: Users): Promise<Users> {
-    const queryRunner = this.connection.createQueryRunner();
+    const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
@@ -51,13 +51,13 @@ export class UsersService {
   }
 
   async saveWithTransactionMethod(user: Users): Promise<void> {
-    this.connection.transaction<void>(async (em) => {
+    this.dataSource.transaction<void>(async (em) => {
       await em.save(user);
     });
   }
 
   async saveWithTransactionMethodWithError(user: Users) {
-    this.connection.transaction<Users>(async (em) => {
+    this.dataSource.transaction<Users>(async (em) => {
       await em.save(user);
       throw new InternalServerErrorException();
     });

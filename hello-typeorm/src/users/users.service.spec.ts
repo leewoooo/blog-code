@@ -2,12 +2,12 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
 import { IBackup, newDb } from 'pg-mem';
-import { Connection, QueryRunner, Repository } from 'typeorm';
+import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { Users } from './domain/users.entity';
 import { UsersService } from './users.service';
 
 describe('TypeORM Connection, Repository Test With pg-mem', () => {
-  let connection: Connection;
+  let dataSource: DataSource;
   let repository: Repository<Users>;
 
   beforeAll(async () => {
@@ -18,29 +18,29 @@ describe('TypeORM Connection, Repository Test With pg-mem', () => {
       implementation: () => 'test',
     });
 
-    connection = await db.adapters.createTypeormConnection({
+    dataSource = await db.adapters.createTypeormConnection({
       type: 'postgres',
       entities: [Users],
       database: 'test',
       synchronize: true,
     });
 
-    repository = connection.getRepository(Users);
+    repository = dataSource.getRepository(Users);
   });
 
   afterAll(async () => {
-    await connection.close();
+    await dataSource.close();
   });
 
   it('to be defined', () => {
-    expect(connection).toBeDefined();
+    expect(dataSource).toBeDefined();
     expect(repository).toBeDefined();
   });
 });
 
 describe('Users Serviec Test with TestModule', () => {
   let backup: IBackup;
-  let connection: Connection;
+  let dataSource: DataSource;
   let userService: UsersService;
   let repository: Repository<Users>;
 
@@ -52,18 +52,19 @@ describe('Users Serviec Test with TestModule', () => {
       implementation: () => 'test',
     });
 
-    connection = await db.adapters.createTypeormConnection({
+    dataSource = await db.adapters.createTypeormConnection({
       type: 'postgres',
       entities: [Users],
+      database: 'test',
+      synchronize: true,
     });
-    await connection.synchronize();
 
     //https://github.com/oguimbal/pg-mem/blob/master/readme.md#rollback-to-a-previous-state
     backup = db.backup();
   });
 
   afterAll(async () => {
-    await connection.close();
+    await dataSource.close();
   });
 
   beforeEach(async () => {
@@ -71,11 +72,11 @@ describe('Users Serviec Test with TestModule', () => {
       imports: [TypeOrmModule.forRoot(), TypeOrmModule.forFeature([Users])],
       providers: [UsersService],
     })
-      .overrideProvider(Connection)
-      .useValue(connection)
+      .overrideProvider(DataSource)
+      .useValue(dataSource)
       .compile();
 
-    repository = connection.getRepository(Users);
+    repository = dataSource.getRepository(Users);
     userService = moduelRef.get<UsersService>(UsersService);
   });
 
@@ -138,7 +139,7 @@ describe('Users Serviec Test with TestModule', () => {
 
 describe('Users Serviec Transaction Test with TestModule', () => {
   let backup: IBackup;
-  let connection: Connection;
+  let dataSource: DataSource;
   let userService: UsersService;
   let repository: Repository<Users>;
 
@@ -150,19 +151,19 @@ describe('Users Serviec Transaction Test with TestModule', () => {
       implementation: () => 'test',
     });
 
-    connection = await db.adapters.createTypeormConnection({
+    dataSource = await db.adapters.createTypeormConnection({
       type: 'postgres',
       entities: [Users],
       logging: true,
     });
-    await connection.synchronize();
+    await dataSource.synchronize();
 
     //https://github.com/oguimbal/pg-mem/blob/master/readme.md#rollback-to-a-previous-state
     backup = db.backup();
   });
 
   afterAll(async () => {
-    await connection.close();
+    await dataSource.destroy();
   });
 
   beforeEach(async () => {
@@ -170,11 +171,11 @@ describe('Users Serviec Transaction Test with TestModule', () => {
       imports: [TypeOrmModule.forRoot(), TypeOrmModule.forFeature([Users])],
       providers: [UsersService],
     })
-      .overrideProvider(Connection)
-      .useValue(connection)
+      .overrideProvider(DataSource)
+      .useValue(dataSource)
       .compile();
 
-    repository = connection.getRepository(Users);
+    repository = dataSource.getRepository(Users);
     userService = moduelRef.get<UsersService>(UsersService);
   });
 
@@ -184,7 +185,7 @@ describe('Users Serviec Transaction Test with TestModule', () => {
 
   it('pg-mem 트랜잭션 테스트', async () => {
     //given
-    const queryRunner = connection.createQueryRunner();
+    const queryRunner = dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
@@ -200,7 +201,7 @@ describe('Users Serviec Transaction Test with TestModule', () => {
     }
 
     //when
-    const queryRunner2 = connection.createQueryRunner();
+    const queryRunner2 = dataSource.createQueryRunner();
     await queryRunner.connect();
     const result = await queryRunner2.manager.find(Users);
 
@@ -236,13 +237,13 @@ describe('Users Serviec Transaction Test with TestModule', () => {
 
 describe('Transaction Unit Test', () => {
   let usersService: UsersService;
-  let connection: Connection;
+  let dataSource: DataSource;
 
   const qr = {
     manager: {},
   } as QueryRunner;
 
-  class ConnectionMock {
+  class DataSourceMock {
     createQueryRunner(mode?: 'master' | 'slave'): QueryRunner {
       return qr;
     }
@@ -262,8 +263,8 @@ describe('Transaction Unit Test', () => {
       providers: [
         UsersService,
         {
-          provide: Connection,
-          useClass: ConnectionMock,
+          provide: DataSource,
+          useClass: DataSourceMock,
         },
         {
           provide: getRepositoryToken(Users),
@@ -273,7 +274,7 @@ describe('Transaction Unit Test', () => {
     }).compile();
 
     usersService = module.get<UsersService>(UsersService);
-    connection = module.get<Connection>(Connection);
+    dataSource = module.get<DataSource>(DataSource);
   });
 
   it('should be defined', () => {
@@ -289,7 +290,7 @@ describe('Transaction Unit Test', () => {
       createdAt: now,
       lastModifiedAt: now,
     };
-    const queryRunner = connection.createQueryRunner();
+    const queryRunner = dataSource.createQueryRunner();
 
     jest
       .spyOn(queryRunner.manager, 'save')
@@ -314,7 +315,7 @@ describe('Transaction Unit Test', () => {
       createdAt: now,
       lastModifiedAt: now,
     };
-    const queryRunner = connection.createQueryRunner();
+    const queryRunner = dataSource.createQueryRunner();
 
     jest
       .spyOn(queryRunner.manager, 'save')
