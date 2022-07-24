@@ -1,5 +1,7 @@
 # TypeORM을 sqlite로 Test하기
 
+예제코드는 Github[https://github.com/leewoooo/blog-code/tree/main/hello-typeorm/src/users/domain]에 있습니다 :)
+
 ## Goal
 
 - pg의 타입을 이용하는 Entity에 대한 Unit Test를 sqlite를 이용하여 진행하기
