@@ -164,7 +164,7 @@ jest.mock('typeorm', () => {
     ...realTypeORM,
     CreateDateColumn: (options: ColumnOptions) => {
       options.type = 'datetime';
-      return CreateDateColumn(options);
+      return realTypeORM.CreateDateColumn(options);
     },
     ...
   };
