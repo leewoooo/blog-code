@@ -139,7 +139,7 @@ nextTickQueue는 `process.nextTick()` API 콜백들이 쌓이게 되며, `microT
 
 ## 이벤트 루프 **흐름**
 
-위에서는 각 Phase 및 `Queue`들이 어떠한 역할을 하는지 정리해보았다. 이제 코드의 실행 흐름을 정리해보자.
+위에서는 각 Phase 및 `Queue`들이 어떠한 역할을 하는지 정리해보았다. 이제 코드의 실행 흐름을 보기 원한다.
 
 ![eventloop_flow](https://user-images.githubusercontent.com/74294325/184094294-09bb72cd-b3a6-4c88-b217-177a9517460d.png)
 
