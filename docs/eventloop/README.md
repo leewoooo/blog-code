@@ -53,13 +53,11 @@ if (운영체제에서 지원하는 비동기 작업) {
 
 이벤트 루프는 6개의 Phase를 가지고 있다. 각 단계에는 **해당 페이즈에서 처리해야 하는 `callback`을 담을 수 있는 `Queue`를 가지고 있다.**
 
-이벤트 루프가 각 Phase에 진입을 하게 되면 해당 `Queue`에 있는 작업들을 **동기적으로 실행하게 된다.**
-
-`Queue`가 비워지거나 **시스템 한도를 초과하지 않을 때 까지** 실행 후 다음 Phase로 넘어간다.
+이벤트 루프가 각 Phase에 진입을 하게 되면 해당 `Queue`에 있는 작업들을 **동기적으로 실행하게 된다.** `Queue`가 비워지거나 **시스템 한도를 초과하지 않을 때 까지** 실행 후 다음 Phase로 넘어간다.
 
 <br>
 
-![eventloop_structure](https://user-images.githubusercontent.com/74294325/184086962-4309c857-e11f-4763-bb56-93df7066d4e9.png)
+![eventloop_structure](https://user-images.githubusercontent.com/74294325/184755067-d40fa6c7-e625-46ce-b530-0bf64d9e2037.png)
 
 `javascript` 코드는 `Idle, Prepare Phase`를 제외한 어느 단계에서든 실행될 수 있다.
 
@@ -71,7 +69,7 @@ if (운영체제에서 지원하는 비동기 작업) {
 
 Timer Phase는 이벤트 루프의 시작을 알리는 Phase이다. 이 Phase에서는 `setTimeout`과 `setInterval`의 콜백이 저장된다.
 
-이 Phase에 타이머들의 **콜백이 바로 Queue에 쌓이는 것이 아니다.** 타이머는 `min-heap`에 유지하고 있다가 해단 타이머가 **실행이 가능할 때 `Queue`에 넣고 실행한다.**
+이 Phase에 타이머들의 **콜백이 바로 Queue에 쌓이는 것이 아니다.** 타이머는 `min-heap`에 유지하고 있다가 해당 타이머가 **실행이 가능할 때 `Queue`에 넣고 실행한다.**
 
 <br>
 
@@ -121,7 +119,7 @@ Check Phase는 오직 `setImmediate`의 콜백만을 위한 Phase이다. `setImm
 
 <br>
 
-### Clase Callbacks Phase
+### Close Callbacks Phase
 
 Clase Callbacks Phase는 `socket.on('close',() => {})`와 같은 `close` 이벤트 타입의 핸들러를 처리하는 페이즈 이다.
 
@@ -141,7 +139,103 @@ nextTickQueue는 `process.nextTick()` API 콜백들이 쌓이게 되며, `microT
 
 위에서는 각 Phase 및 `Queue`들이 어떠한 역할을 하는지 정리해보았다. 이제 코드의 실행 흐름을 보기 원한다.
 
-![eventloop_flow](https://user-images.githubusercontent.com/74294325/184094294-09bb72cd-b3a6-4c88-b217-177a9517460d.png)
+![eventloop_flow](https://user-images.githubusercontent.com/74294325/184751460-e3e523f3-e44a-4cf5-9d96-2f915195a915.png)
+
+1. `main.js`를 Node 환경에서 실행을 시키면 Node는 **먼저 이벤트 루프를 생성한다.** 이 때 `main.js`가 비동기작업을 가지고 있지 않아도 생성된다.
+
+2. 생성 후 **이벤트 루프 밖에 `main.js`의 코드를 실행한다.**
+
+3. 코드를 실행한 결과 **이벤트 루프가 살아있는지 확인을 한다.** 여기서 살아있는지 확인한다는 것은 **이벤트 루프 안에서 처리해야할 작업들의 존재여부가 된다.**
+
+4. 만약 이벤트 루프 안에서 처리해야할 작업이 없다면 Node는 이벤트 루프를 종료한다.
+
+5. 만약 이벤트 루프 안에서 처리해야할 작업이 있다면 Node는 이벤트 루프의 첫 페이즈인 Timer Phase에 진입한다.
+
+6. Close Callbacks Phase 이 후 다시 이벤트 루프가 살아있는지 확인하게 된다.
+
+이제 각 페이즈를 흐름에 따라 조금 더 자세히 살펴보기를 원한다.
+
+<br>
+
+### Timer Phase
+
+앞에서 이야기 했듯이 Timer Phase는 타이머를 `min-heap`을 통해 관리를 한다. **힙을 구성하는 시점에서 실행시간이 가장 적게 남은 타이머가 힙의 루트가 된다.**
+
+이벤트 루프가 Timer Phase에 진입을 하게 되면 타이머들의 `now - registedTime >= delta`를 검사하게 된다. 여기서 `delta`는 `setTimeout()`의 두번 째 인자로 넣은 시간이 된다.
+
+위의 조건에 맞는 타이머들의 콜백이 Queue에 들어가게 되며 이벤트 루프에 의해 하나씩 실행되게 된다.
+
+그 후 다시 타이머들을 관리하는 `min-heap`을 재구성하게 된다.
+
+> `min-heap`<br> 부모 노드의 키 값이 자식 노드의 키 값보다 작거나 같은 완전 이진 트리를 이야기한다.
+
+<br>
+
+### Pending I/O Phase
+
+해당 페이즈에 진입하면 **이전 작업들의 콜백이 실행 대기 중인지(실행이 가능한지) 확인한다.**
+
+즉 Pending Queue에 들어와 있는 작업이 있는지 확인한다. 확인 후 작업들이 있다면 Queueu가 비거나 시스템 실행한도 까지 실행 후 다음 페이즈로 넘어간다.
+
+<br>
+
+### Poll Phase
+
+이벤트 루프가 해당 페이즈에 들어왔을 때 `watcher_queue` 내부에 파일 읽기, HTTP, DB 등등.. 에 대한 콜백을 실행한다.
+
+만약 `watcher_queue`에 **더 이상 실행해야 할 작업들이 없다면?**
+
+Poll Phase는 다른 페이즈와는 다르게 바로 다음 페이즈로 넘어가지 않는다.
+
+먼저는
+
+1. check_queue, pending_queue, close_callback_queue에 해야할 작업이 있는지 검사한다.
+
+2. 작업이 있다면 Poll Phase가 종료되고 바로 다음 페이즈로 넘어간다.
+
+3. 작업이 없다면 다음 페이즈로 넘어가지 않고 대기한다.
+
+여기서 Poll Phase가 대기하는 것을 조금 더 자세히 살펴보면 대기를 한다고 해서 **무한정 대기하는 것은 아니다.**
+
+타이머를 관리하는 `min-heap`에서 첫번째 타이머를 꺼내 지금 실행할 수 있는 상태인지 확인을 한다.
+
+지금 실행할 수 있는 상태라면 그 해당 타이머의 시간만큼 대기 후 다음 페이즈로 넘어간다. (간단히 n초 후 실행할 수 있는 타이머가 있다면 n초 대기를 한다.)
+
+그 이유는 **다음 페이즈로 넘어가도 실행할 수 있는 타이머가 없기 때문에 이벤트 루프는 계속해서 작업없이 도는 것을 방지하기 위해서이다.**
+
+<br>
+
+### Check Phase
+
+이 페이즈는 설명과 크게 다르지 않다. `setImmediate()`의 콜백들이 쌓인 Queueu가 비거나 시스템 실행한도 까지 실행 후 다음 페이즈로 넘어간다.
+
+<br>
+
+### Close Callback Phase
+
+uv_close()를 부르면서 종료된 핸들러의 콜백들을 처리하는 Phase이다.
+
+이벤트 루프가 Close Callback Phase의 작업들과 함께 종료가 되면 그 때 이벤트 루프가 살아있는지 확인하게 된다.
+
+동일하게 이벤트 루프에서 처리할 작업이 남아있으면 이벤트 루프를 종료하지 않고 다시 Timer Phase로 넘어간다.
+
+하지만 이벤트 루프가 살아있지 않으면 이벤트 루프를 종료한다.
+
+<br>
+
+## 그럼 nextTickQueue와 microTaskQueue는?
+
+그럼 이 2개의 Queue는 언제 실행될까?
+
+**이 2개의 Qeueu는 어떤 페이즈에서 다음 페이즈로 넘어가기 전에 자신이 가지고 있는 콜백들을 최대한 빨리 실행하는 역할을 맞고 있다.**
+
+2개의 Queue는 **시스템 실행한도의 영향을 받지 않는다.** 이 말은 해당 Queue가 비워질 때 까지 작업들이 계속해서 실행되며 만일 계속해서 쌓인다면 **갇힐 수 있다는 것이다.**
+
+nextTickQueue가 microTaskQueue보다 우선순위가 높기 때문에 nextTickQueue에 있는 작업들이 더 먼저 실행된다.
+
+<br>
+
+###
 
 ## REFERENCES
 
