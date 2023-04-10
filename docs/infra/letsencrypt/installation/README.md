@@ -215,6 +215,14 @@ certbot renew # 이전에 발급받은 모든 인증서를 갱신한다.
 
 <br>
 
+## TODO: 인증서 자동발급 (발급 후 자동 재 발급이 되는 것을 확인 후)
+
+인증서 자동 발급 과정 작성할 것
+
+- certbot을 이용하면 기본적으로 `/etc/conf.d/certbot`에 cronjob이 정의되어 있으며 만료일까지 30일 남은 모든 인증서를 자동으로 갱신 시킬 수 있다.
+
+<br>
+
 ## Reference
 
 - https://eff-certbot.readthedocs.io/en/stable/index.html
